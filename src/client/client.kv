@@ -1,0 +1,288 @@
+#:kivy 1.10.0
+#:import window kivy.core.window
+
+<LoginScreen>:
+    canvas.before:
+        Color:
+            rgba: 7/256, 54/256, 66/256, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    login_username: login_username.__self__
+    login_password: login_password.__self__
+
+    BoxLayout:
+
+        orientation: 'vertical'
+        padding: [20, 20, 20, 20]
+        spacing: 10
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: [20, 0, 20, 0]
+
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: [0, 5, 0, 5]
+                size_hint: (1, 0.5)
+
+                Label:
+                    text: 'Username:'
+                    size_hint: (0.25, 1)
+
+                TextInput:
+                    id: login_username
+                    text: ''
+                    size_hint: (0.75, 1)
+                    hint_text: 'enter your username here'
+                    hint_text_color: [0.5, 0.5, 0.5, 1]
+                    background_color: [1, 1, 1, 1]
+                    cursor_color: [0, 0, 0, 1]
+                    foreground_color: [0, 0, 0, 1]
+                    font_size: 14
+                    padding: [10, 11, 10, 10]
+                    focus: True
+                    multiline: False
+                    on_text_validate: login_password.focus = True
+
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: [0, 5, 0, 5]
+                size_hint: (1, 0.5)
+
+                Label:
+                    text: 'Password:'
+                    size_hint: (0.25, 1)
+
+                TextInput:
+                    id: login_password
+                    text: ''
+                    size_hint: (0.75, 1)
+                    hint_text: 'enter your password here'
+                    hint_text_color: [0.5, 0.5, 0.5, 1]
+                    background_color: [1, 1, 1, 1]
+                    cursor_color: [0, 0, 0, 1]
+                    foreground_color: [0, 0, 0, 1]
+                    font_size: 14
+                    padding: [10, 11, 10, 10]
+                    focus: True
+                    multiline: False
+                    password: True
+
+        BoxLayout:
+            orientation: 'horizontal'
+            height: 50
+            size_hint: (1, None)
+            spacing: 5
+
+            Button:
+                text: 'Register'
+                width: 150
+                size_hint: (None, 1)
+                background_color: [1, 1, 1, .5]
+                on_press:
+                    app._change_screen("register", app._login_screen)
+
+            Button:
+                text: 'Login'
+                width: 150
+                size_hint: (None, 1)
+                background_color: [1, 1, 1, .5]
+                on_press:
+                    app._change_screen("user", app._login_screen)
+
+            Button:
+                text: 'Cancel'
+                width: 150
+                size_hint: (None, 1)
+                background_color: [1, 1, 1, .5]
+                on_press: app.stop()
+
+<RegisterScreen>:
+    register_username: register_username.__self__
+    register_password: register_password.__self__
+    register_snd_password: register_snd_password.__self__
+    canvas.before:
+        Color:
+            rgba: 7/256, 54/256, 66/256, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        id: register_screen
+        orientation: 'vertical'
+        padding: [20, 20, 20, 20]
+        spacing: 10
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: [20, 0, 20, 0]
+
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: [0, 5, 0, 5]
+                size_hint: (1, None)
+                height: 50
+
+                Label:
+                    text: 'Username:'
+                    size_hint: (0.4, 1)
+
+                TextInput:
+                    id: register_username
+                    text: ''
+                    size_hint: (0.6, 1)
+                    hint_text: 'enter your username here'
+                    hint_text_color: [0.5, 0.5, 0.5, 1]
+                    background_color: [1, 1, 1, 1]
+                    cursor_color: [0, 0, 0, 1]
+                    foreground_color: [0, 0, 0, 1]
+                    font_size: 14
+                    padding: [10, 11, 10, 10]
+                    focus: True
+                    multiline: False
+                    on_text_validate: register_password.focus = True
+
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: [0, 5, 0, 5]
+                size_hint: (1, None)
+                height: 50
+
+                Label:
+                    text: 'Password:'
+                    size_hint: (0.4, 1)
+
+                TextInput:
+                    id: register_password
+                    text: ''
+                    size_hint: (0.6, 1)
+                    hint_text: 'enter your password here'
+                    hint_text_color: [0.5, 0.5, 0.5, 1]
+                    background_color: [1, 1, 1, 1]
+                    cursor_color: [0, 0, 0, 1]
+                    foreground_color: [0, 0, 0, 1]
+                    font_size: 14
+                    padding: [10, 11, 10, 10]
+                    focus: True
+                    multiline: False
+                    password: True
+                    on_text_validate: register_snd_password.focus = True
+
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: [0, 5, 0, 5]
+                size_hint: (1, None)
+                height: 50
+
+                Label:
+                    text: 'Confirm Password:'
+                    size_hint: (0.4, 1)
+
+                TextInput:
+                    id: register_snd_password
+                    text: ''
+                    size_hint: (0.6, 1)
+                    hint_text: 'please verify your password here'
+                    hint_text_color: [0.5, 0.5, 0.5, 1]
+                    background_color: [1, 1, 1, 1]
+                    cursor_color: [0, 0, 0, 1]
+                    foreground_color: [0, 0, 0, 1]
+                    font_size: 14
+                    padding: [10, 11, 10, 10]
+                    focus: True
+                    multiline: False
+                    password: True
+
+        BoxLayout:
+            orientation: 'horizontal'
+            height: 50
+            size_hint: (1, None)
+            spacing: 5
+
+            Button:
+                text: 'Register'
+                width: 150
+                size_hint: (None, 1)
+                background_color: [1, 1, 1, .5]
+
+            Button:
+                text: 'Login'
+                width: 150
+                size_hint: (None, 1)
+                background_color: [1, 1, 1, .5]
+                on_press:
+                    app._change_screen("login", app._register_screen)
+
+            Button:
+                text: 'Cancel'
+                width: 150
+                size_hint: (None, 1)
+                background_color: [1, 1, 1, .5]
+                on_press: app.stop()
+
+<UserScreen>:
+    canvas.before:
+        Color:
+            rgba: 7/256, 54/256, 66/256, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [20, 20, 20, 20]
+
+        BoxLayout:
+            id: user_info_panel
+            height: 128
+            orientation: 'horizontal'
+            size_hint: (1, None)
+
+            AsyncImage:
+                source: "https://imagej.net/_images/thumb/a/af/Tux.png/128px-Tux.png"
+                width: 128
+                size_hint: (None, 1)
+
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint: (1, 1)
+                padding: [4, 2, 4, 2]
+                spacing: 2
+
+                Label:
+                    id: user_username
+                    text: "Username"
+                    font_size: 32
+                    size_hint: (1, 0.33)
+                    color: [253/256, 246/256, 227/256, 1]
+
+                Label:
+                    text: "4.0/5"
+                    size_hint: (1, 0.33)
+                    color: [0, 1, 0, 1]
+
+                BoxLayout:
+                    orientation: 'horizontal'
+                    spacing: 5
+                    size_hint: (1, 0.33)
+
+                    Button:
+                        text: "Change Password"
+                        background_color: [1, 1, 1, .5]
+
+                    Button:
+                        text: "Write Post"
+                        background_color: [1, 1, 1, .5]
+
+                    Button:
+                        text: "Log Off"
+                        background_color: [1, 1, 1, .5]
+
+
+        BoxLayout:
+            size_hint: (1, 1)
+
+            Button:
+                text: "click me"
