@@ -31,7 +31,7 @@ def make_app():
     api.add_resource(CreateUserEndpoint, '/user/create', endpoint="create_user")
     api.add_resource(LoginEndpoint, '/login', endpoint="login")
     api.add_resource(GetPostEndpoint, '/post/<int:post_id>', endpoint="post")
-    api.add_resource(GetPostsEndpoint, '/posts/<int:group_id>', endpoint="posts")
+    api.add_resource(GetPostsEndpoint, '/posts/<int:group_id>', '/posts', endpoint="posts")
     api.add_resource(CreatePostEndpoint, '/post', endpoint="create_post")
 
     return app
