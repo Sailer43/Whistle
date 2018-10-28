@@ -6,7 +6,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import ConfigParser
 from kivy.core.window import Window
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -34,6 +34,10 @@ class ClientApp(App):
     _post_screen = None
     _navi_down = None
     _group_down = None
+    username = StringProperty()
+    current_group = StringProperty("World")
+    current_window = StringProperty("")
+    post_history = dict()
     colors = {
         "back01": [7 / 255, 54 / 255, 66 / 255, 1],
         "violet": [108 / 255, 113 / 255, 196 / 255, 1],
@@ -177,8 +181,13 @@ class ClientApp(App):
             self._home_screen.post_container.add_widget(new_entry)
 
     def _load_single_post(self, data: dict) -> None:
-        print(data)
-        pass
+        self._post_screen.title = data["text"]
+        self._post_screen.author = data["author_name"]
+        self._post_screen.author_id = data["author_id"]
+        self._post_screen.rating = data["rating"]
+        self._post_screen.post_id = data["post_id"]
+        self._post_screen.published = data["published"]
+        self._post_screen.window_id = data["window_id"]
 
     def _load_user_page(self, data: dict) -> None:
         self._user_screen.username = data["username"]
@@ -196,12 +205,14 @@ class ClientApp(App):
             new_entry.window_id = window["window_id"]
             self._user_screen.post_container.add_widget(new_entry)
         for entry in data["posts"]:
+            new_entry = GeneralPostEntry()
             new_entry.text = entry["text"]
             new_entry.author_id = entry["author_id"]
             new_entry.author_name = entry["author_name"]
             new_entry.rating = entry["rating"]
             new_entry.post_id = entry["post_id"]
             new_entry.published = entry["published"]
+            self._user_screen.post_container.add_widget(new_entry)
         self._update_group_down(data["groups"])
         Clock.schedule_interval(self._update_count_down, 1)
 
@@ -230,6 +241,7 @@ class ClientApp(App):
     def _login(self, username: str, password: str):
         thread = Thread(target=self.kernel.login, args=(username, password,))
         thread.start()
+        self.username = username
 
     def _register(self, username: str, password: str, snd_password: str):
         if password != snd_password:
@@ -251,6 +263,10 @@ class ClientApp(App):
         thread = Thread(target=self.kernel.get_own_page)
         thread.start()
         Clock.schedule_once(lambda dt: self._change_screen("user", self._screen_manager.current_screen))
+
+    def _publish_post(self, text: str):
+        thread = Thread(target=self.kernel.publish_post, args=(text, self.current_window,))
+        thread.start()
 
     def _logoff(self) -> None:
         self.kernel.logoff()

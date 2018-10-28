@@ -35,9 +35,16 @@ class ClientKernel:
         self.app.response = r
 
     def get_single_post(self, post_id: str):
-        r = requests.get(url + "/posts/" + post_id)
+        r = requests.get(url + "/post/" + post_id)
         self.app.response = r
 
     def get_own_page(self):
         r = requests.get(url + "/user", cookies=self.cookies)
         self.app.response = r
+
+    def publish_post(self, text: str, window_id: str):
+        data = {
+            "text": text,
+            "window_id": window_id,
+        }
+        r = requests.post(url + "/post", json=data, cookies=self.cookies)

@@ -236,13 +236,15 @@
         size_hint_y: None
         height: 50
         on_release:
+            app._get_own_page()
             root.dismiss()
-            print(self.pos)
+
     Button:
         text: 'Write'
         size_hint_y: None
         height: 50
         on_release:
+            app._change_screen("write", app._screen_manager.current_screen)
             root.dismiss()
 
     Button:
@@ -250,32 +252,16 @@
         size_hint_y: None
         height: 50
         on_release:
+            app._change_screen("home", app._screen_manager.current_screen)
+            app._get_general_post()
             root.dismiss()
 
 <GroupDropDown>:
     auto_dismiss: False
     auto_width: False
     width: window.Window.size[0] - 150
-    Button:
-        text: 'User'
-        size_hint_y: None
-        height: 50
-        on_release:
-            root.dismiss()
-
-    Button:
-        text: 'Write'
-        size_hint_y: None
-        height: 50
-        on_release:
-            root.dismiss()
-
-    Button:
-        text: 'Home'
-        size_hint_y: None
-        height: 50
-        on_release:
-            root.dismiss()
+    GroupEntry:
+        text: "World"
 
 <Header>:
     group_drop_down: None
@@ -301,7 +287,7 @@
                 app._get_own_page()
 
         ClickLabel:
-            text: 'username'
+            text: app.username
             size_hint: (1, 1)
             background: [7/256, 54/256, 66/256, 0]
             on_press:
@@ -313,7 +299,7 @@
 
         Button:
             id: group_drop_down1
-            text: 'Group'
+            text: 'World'
             size_hint: (0.6, 1)
 
         Button:
@@ -327,7 +313,6 @@
     posts: []
     rating: 0
     user_id: ""
-    username: ""
     post_container: post_container.__self__
     group_drop_down: group_drop_down.__self__
 
@@ -359,8 +344,7 @@
                 size_hint: (None, None)
 
             Label:
-                id: user_username
-                text: root.username
+                text: app.username
                 font_size: 32
                 height: 40
                 size_hint: (1, None)
@@ -402,7 +386,7 @@
 
             Button:
                 id: group_drop_down
-                text: "Group"
+                text: app.current_group
                 height: 50
                 size_hint: (1, None)
 
@@ -416,9 +400,6 @@
                     spacing: 100
                     size_hint_y: None
                     padding: [0, 100, 0, 0]
-
-
-
 
 
 <HomeScreen>:
@@ -491,13 +472,8 @@
                 size_hint_y: None
                 padding: [0, 10, 0, 0]
 
-                WriteGroupEntry
-                WriteGroupEntry
-                WriteGroupEntry
-                WriteGroupEntry
-                WriteGroupEntry
-                WriteGroupEntry
                 TextInput:
+                    id: input
                     height: 400
                     size_hint: (1, None)
                 BoxLayout:
@@ -510,10 +486,13 @@
                         size_x: 150
                         size_hint: (None, 1)
 
+
                     Button:
                         text: "Discard"
                         size_x: 150
                         size_hint: (None, 1)
+                        on_press:
+                            input.text = ""
 
                     BoxLayout:
                         size_hint: (1, 1)
@@ -522,15 +501,17 @@
                         text: "Publish"
                         size_x: 150
                         size_hint: (None, 1)
+                        on_press:
+                            app._publish_post(input.text)
 
 <PostScreen>:
     post_container: post_container.__self__
     navi_drop_down: header.navi_drop_down1
     group_drop_down: header.group_drop_down1
     title: ""
-    author: "(author)"
+    author: ""
     author_id: ""
-    rating: "123"
+    rating: 0
     post_id: ""
     published: False
     window_id: ""
@@ -578,7 +559,7 @@
                         size_hint: [1, None]
                         color: app.colors["cyan"]
                     Label:
-                        text: root.rating
+                        text: str(root.rating)
                         height: 20
                         font_size: 16
                         size_hint: [1, None]
@@ -586,7 +567,7 @@
                     BoxLayout
 
                 Label:
-                    text: "".join(['x' for i in range(400)])
+                    text: root.title
                     size: self.texture_size
                     text_size: window.Window.size[0] - 250, 250
                     size_hint: (None, None)
@@ -601,7 +582,7 @@
     author_id: ""
     author_name: ""
     post_id: ""
-    rating: ""
+    rating: 0
     text: ""
     published: False
     orientation: 'vertical'
@@ -642,7 +623,9 @@
         halign: "left"
         size_hint: (None, None)
         on_press:
-            app._get_single_post(root.id)
+            app.current_group = root.group
+            app.current_window = root.window_id
+            app._change_screen("write", app._user_screen)
     ClickLabel:
         id: count_down
         text: ""
@@ -651,6 +634,10 @@
         halign: 'left'
         size_hint: (None, None)
         markup: True
+        on_press:
+            app.current_group = root.group
+            app.current_window = root.window_id
+            app._change_screen("write", app._user_screen)
 
 <GroupEntry>:
     group: ""
@@ -659,4 +646,5 @@
     size_hint_y: None
     height: 50
     on_release:
+        app.current_group = self.text
         app._group_down.dismiss()
