@@ -38,9 +38,7 @@ class Window:
         mongo.db.windows.update_one({"_id":self.obj["_id"]},
             {
                 "$pull": {
-                    "users": {
-                            "_id": ObjectId(user_id)
-                    }
+                    "users": ObjectId(user_id)
                 }
             })
         self.reload()
@@ -54,7 +52,7 @@ class Window:
 
     def remove_post(self, post_id):
         mongo.db.windows.remove_one({"_id":self.obj["_id"]},
-            {"$pull": {"posts":{"_id":ObjectId(post_id)}}})
+            {"$pull": {"posts":ObjectId(post_id)}})
         self.reload()
         return True
 

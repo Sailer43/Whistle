@@ -63,7 +63,7 @@ class User:
 
     def remove_post(self, post_id):
         mongo.db.users.remove_one({"_id":self.obj["_id"]},
-            {"$pull": {"posts":{"_id":ObjectId(post_id)}}})
+            {"$pull": {"posts":vObjectId(post_id)}})
         self.reload()
         return True
 
@@ -78,7 +78,7 @@ class User:
 
     def remove_window(self, window_id):
         mongo.db.users.update_one({"_id":self.obj["_id"]},
-            {"$pull": {"windows":{"_id":ObjectId(window_id)}}})
+            {"$pull": {"windows": ObjectId(window_id)}})
         self.reload()
         return True
 
