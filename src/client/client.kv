@@ -4,7 +4,7 @@
 <LoginScreen>:
     canvas.before:
         Color:
-            rgba: app.colors["back01"]
+            rgba: app.colors["back02"]
         Rectangle:
             pos: self.pos
             size: self.size
@@ -80,7 +80,7 @@
                 text: 'Register'
                 width: 150
                 size_hint: (None, 1)
-                background_color: [1, 1, 1, .5]
+                background_color: app.colors["white"]
                 on_press:
                     app._change_screen("register", app._login_screen)
 
@@ -88,7 +88,7 @@
                 text: 'Login'
                 width: 150
                 size_hint: (None, 1)
-                background_color: [1, 1, 1, .5]
+                background_color: app.colors["white"]
                 on_press:
                     app._login(root.login_username.text, root.login_password.text)
 
@@ -96,7 +96,7 @@
                 text: 'Cancel'
                 width: 150
                 size_hint: (None, 1)
-                background_color: [1, 1, 1, .5]
+                background_color: app.colors["white"]
                 on_press: app.stop()
 
 <RegisterScreen>:
@@ -105,7 +105,7 @@
     register_snd_password: register_snd_password.__self__
     canvas.before:
         Color:
-            rgba: app.colors["back01"]
+            rgba: app.colors["back02"]
         Rectangle:
             pos: self.pos
             size: self.size
@@ -208,7 +208,7 @@
                 text: 'Register'
                 width: 150
                 size_hint: (None, 1)
-                background_color: [1, 1, 1, .5]
+                background_color: app.colors["white"]
                 on_press:
                     app._register(root.register_username.text, root.register_password.text, root.register_snd_password.text)
 
@@ -216,7 +216,7 @@
                 text: 'Login'
                 width: 150
                 size_hint: (None, 1)
-                background_color: [1, 1, 1, .5]
+                background_color: app.colors["white"]
                 on_press:
                     app._change_screen("login", app._register_screen)
 
@@ -224,7 +224,7 @@
                 text: 'Cancel'
                 width: 150
                 size_hint: (None, 1)
-                background_color: [1, 1, 1, .5]
+                background_color: app.colors["white"]
                 on_press: app.stop()
 
 <NaviDropDown>:
@@ -235,6 +235,7 @@
         text: 'User'
         size_hint_y: None
         height: 50
+        background_color: app.colors["front06"]
         on_release:
             app._get_own_page()
             root.dismiss()
@@ -243,6 +244,7 @@
         text: 'Write'
         size_hint_y: None
         height: 50
+        background_color: app.colors["front06"]
         on_release:
             app._change_screen("write", app._screen_manager.current_screen)
             root.dismiss()
@@ -251,6 +253,7 @@
         text: 'Home'
         size_hint_y: None
         height: 50
+        background_color: app.colors["front06"]
         on_release:
             app._change_screen("home", app._screen_manager.current_screen)
             app._get_general_post()
@@ -301,11 +304,13 @@
             id: group_drop_down1
             text: app.current_group
             size_hint: (0.6, 1)
+            background_color: app.colors["front06"]
 
         Button:
             id: navi_drop_down1
             text: 'Navigation'
             size_hint: (0.4, 1)
+            background_color: app.colors["front06"]
 
 <UserScreen>:
     avatar_url: ""
@@ -319,7 +324,7 @@
 
     canvas.before:
         Color:
-            rgba: app.colors["back01"]
+            rgba: app.colors["back02"]
         Rectangle:
             pos: self.pos
             size: self.size
@@ -356,21 +361,21 @@
                 height: 40
                 size_hint: (1, None)
                 font_size: 24
-                color: [0, 1, 0, 1]
+                color: app.colors["violet"]
 
             BoxLayout:
                 size_hint: (1, 0.4)
 
             Button:
                 text: "Home"
-                background_color: [1, 1, 1, .5]
+                background_color: app.colors["white"]
                 height: 30
                 size_hint: (1, None)
                 on_press: app._get_general_post()
 
             Button:
                 text: "Change Password"
-                background_color: [1, 1, 1, .5]
+                background_color: app.colors["white"]
                 height: 30
                 size_hint: (1, None)
                 on_press: app._test()
@@ -378,14 +383,14 @@
             Button:
                 id: write
                 text: "Write Post"
-                background_color: [1, 1, 1, .5]
+                background_color: app.colors["white"]
                 height: 30
                 size_hint: (1, None)
                 on_press: app._change_screen("write", app._user_screen)
 
             Button:
                 text: "Log Off"
-                background_color: [1, 1, 1, .5]
+                background_color: app.colors["white"]
                 height: 30
                 size_hint: (1, None)
                 on_press: app._logoff()
@@ -398,6 +403,7 @@
                 text: app.current_group
                 height: 50
                 size_hint: (1, None)
+                background_color: app.colors["front06"]
 
             ScrollView:
                 size_hint: (1, 1)
@@ -417,7 +423,7 @@
     group_drop_down: header.group_drop_down1
     canvas.before:
         Color:
-            rgba: app.colors["back01"]
+            rgba: app.colors["back02"]
         Rectangle:
             pos: self.pos
             size: self.size
@@ -459,7 +465,7 @@
     input: input.__self__
     canvas.before:
         Color:
-            rgba: app.colors["back01"]
+            rgba: app.colors["back02"]
         Rectangle:
             pos: self.pos
             size: self.size
@@ -528,7 +534,7 @@
     window_id: ""
     canvas.before:
         Color:
-            rgba: app.colors["back01"]
+            rgba: app.colors["back02"]
         Rectangle:
             pos: self.pos
             size: self.size
@@ -590,6 +596,13 @@
 
 
 <GeneralPostEntry>:
+    canvas.before:
+        Color:
+            rgba: app.colors["back02"]
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     author_id: ""
     author_name: ""
     post_id: ""
@@ -656,6 +669,7 @@
     text: self.group
     size_hint_y: None
     height: 50
+    background_color: app.colors["front06"]
     on_release:
         app._group_down.dismiss()
         if app._screen_manager.current_screen.name == "write": app._update_post_history(self.text)

@@ -42,7 +42,17 @@ class ClientApp(App):
     colors = {
         "back01": [7 / 255, 54 / 255, 66 / 255, 1],
         "violet": [108 / 255, 113 / 255, 196 / 255, 1],
-        "cyan": [42 / 255, 161 / 255, 152 / 255, 1]
+        "cyan": [42 / 255, 161 / 255, 152 / 255, 1],
+        "back02": [53 / 255, 92 / 255, 125 / 255, 1],
+        "back03": [108 / 255, 91 / 255, 123 / 255, 1],
+        "front01": [192 / 255, 108 / 255, 132 / 255, 1],
+        "front02": [246 / 255, 114 / 255, 128 / 255, 1],
+        "front03": [248 / 255, 177 / 255, 149 / 255, 1],
+        "front04": [42 / 255, 54 / 255, 61 / 255, 1],
+        "front05": [229 / 255, 252 / 255, 194 / 255, 1],
+        "front06": [30 / 255, 69 / 255, 102 / 255, 1],
+        "black": [54 / 255, 54 / 255, 54 / 255, 1],
+        "white": [1, 1, 1, 0.8],
     }
 
     @overrides(App)
@@ -206,18 +216,7 @@ class ClientApp(App):
         self._user_screen.posts = data["posts"]
         self._user_screen.groups = data["groups"]
         self._user_screen.post_container.clear_widgets()
-        self._write_screen.post_container.clear_widgets()
-        count = 0
-        for window in data["windows"]:
-            count += 1
-            new_entry = WindowEntry()
-            new_entry.group = window["group"]
-            new_entry.start_time = window["start_time"]
-            new_entry.duration = window["duration"]
-            new_entry.window_id = window["window_id"]
-            self._write_screen.post_container.add_widget(new_entry, 0)
-        if count > 0:
-            self._user_screen.write.background_color = [0, 1, 0, 1]
+        self._update_timer(data)
         for entry in data["posts"]:
             new_entry = GeneralPostEntry()
             new_entry.text = entry["text"]
@@ -256,7 +255,12 @@ class ClientApp(App):
             self._write_screen.input.text = ""
 
     def _update_timer(self, data):
-        self._write_screen.post_container.clear_widgets()
+        redundant = list()
+        for entry in self._write_screen.post_container.children[0].children:
+            if type(entry) == "WindowEntry":
+                redundant.append(entry)
+        for entry in redundant:
+            self._write_screen.post_container.remove_widget(entry)
         count = 0
         for window in data["windows"]:
             count += 1
@@ -265,9 +269,10 @@ class ClientApp(App):
             new_entry.start_time = window["start_time"]
             new_entry.duration = window["duration"]
             new_entry.window_id = window["window_id"]
-            self._write_screen.post_container.add_widget(new_entry, 0)
+            self._write_screen.post_container.add_widget(new_entry,
+                                                         len(self._write_screen.post_container.children[0].children))
         if count > 0:
-            self._user_screen.write.background_color = [0, 1, 0, 1]
+            self._user_screen.write.background_color = self.colors["cyan"]
 
     def _update_group_to_window(self):
         r = self.kernel.fetch_user()
