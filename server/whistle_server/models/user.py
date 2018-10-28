@@ -1,18 +1,32 @@
 from whistle_server import mongo
 from bson.objectid import ObjectId
-from whistle_server.models.window import Window
+# from whistle_server.models.window import Window
 import time
-
 
 def hash_password(password):
     from werkzeug.security import generate_password_hash
     return generate_password_hash(password)
 
 class User:
+    """
+    Deals with the model of User
+    Methods:
+        in_window
+        has_window
+        add_post
+        remove_post
+        add_window
+        remove_window
+        reload
+        find_by_username
+        find_by_id
+    """
     def __init__(self, obj):
         self.obj = obj
 
     def in_window(self):
+        # from whistle_server.models.window import Window
+
         windows = self.obj["windows"]
         window_found = False
         to_delete = []
@@ -27,6 +41,8 @@ class User:
         return window_found
 
     def has_window(self, window_id):
+        # from whistle_server.models.window import Window
+
         window = Window.find_by_id(window_id)
         if window is None:
             return False
@@ -38,11 +54,13 @@ class User:
         mongo.db.users.update_one({"_id":self.obj["_id"]},
             {"$push": {"posts":ObjectId(post_id)}})
         self.reload()
+        return True
 
     def remove_post(self, post_id):
         mongo.db.users.remove_one({"_id":self.obj["_id"]},
             {"$pop": {"posts":{"_id":ObjectId(post_id)}}})
         self.reload()
+        return True
 
 
     def add_window(self, window_id):
@@ -51,11 +69,13 @@ class User:
         mongo.db.users.update_one({"_id":self.obj["_id"]},
             {"$push": {"windows":ObjectId(window_id)}})
         self.reload()
+        return True
 
     def remove_window(self, window_id):
         mongo.db.users.update_one({"_id":self.obj["_id"]},
             {"$pop": {"windows":{"_id":ObjectId(window_id)}}})
         self.reload()
+        return True
 
     def reload(self):
         self.obj = mongo.db.users.find_one({"_id":self.obj["_id"]})
@@ -97,3 +117,5 @@ class User:
     @staticmethod
     def delete(user_id):
         mongo.db.users.delete_one({"_id": ObjectId(user_id)})
+
+from .window import Window

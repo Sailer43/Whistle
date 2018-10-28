@@ -1,6 +1,7 @@
 from whistle_server import mongo
 from bson.objectid import ObjectId
 import time
+from .user import User
 
 class Window:
 
@@ -14,15 +15,49 @@ class Window:
         else:
             return False
 
+    def add_user(self, user_id):
+        # from whistle_server.models.user import User
+
+        user = User.find_by_id(user_id)
+        if not user:
+            return False
+        user.add_window(self.obj["_id"])
+
+        mongo.db.windows.update_one({"_id":self.obj["_id"]},
+            {"$push": {"users":ObjectId(user_id)}})
+        self.reload()
+        return True
+
+    def remove_user(self, user_id):
+        # from whistle_server.models.user import User
+
+        user = User.find_by_id(user_id)
+        if not user:
+            return False
+        user.remove_window(self.obj["_id"])
+
+        mongo.db.windows.update_one({"_id":self.obj["_id"]},
+            {
+                "$pop": {
+                    "users": {
+                            "_id": ObjectId(user_id)
+                    }
+                }
+            })
+        self.reload()
+        return True
+
     def add_post(self, post_id):
         mongo.db.windows.update_one({"_id":self.obj["_id"]},
             {"$push": {"posts":ObjectId(post_id)}})
         self.reload()
+        return True
 
     def remove_post(self, post_id):
         mongo.db.windows.remove_one({"_id":self.obj["_id"]},
             {"$pop": {"posts":{"_id":ObjectId(post_id)}}})
         self.reload()
+        return True
 
     def reload(self):
         self.obj = mongo.db.windows.find_one({"_id":self.obj["_id"]})
@@ -44,7 +79,7 @@ class Window:
         obj["start_time"] = start_time
         obj["duration"] = duration
         obj["publish_time"] = start_time + duration
-        obj["chosen_users"] = []
+        obj["users"] = []
         obj["posts"] = []
         window = mongo.db.windows.insert_one(obj)
         window = mongo.db.windows.find_one({"_id": window.inserted_id})

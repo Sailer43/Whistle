@@ -3,7 +3,7 @@ from bson.objectid import ObjectId
 
 class Post:
     def __init__(self, obj):
-        self.obj = obj
+        self.obj = objectid
 
     @staticmethod
     def create(user_id, text, window_id):
@@ -11,6 +11,8 @@ class Post:
         obj["user_id"] = ObjectId(user_id)
         obj["text"] = text
         obj["window_id"] = ObjectId(window_id)
+        obj["comments"] = []
+        obj["was_published"] = False
         post = mongo.db.posts.insert_one(obj)
         post = mongo.db.posts.find_one({"_id": post.inserted_id})
         if post is None:
