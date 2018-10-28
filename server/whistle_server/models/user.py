@@ -2,7 +2,6 @@ from whistle_server import mongo
 from bson.objectid import ObjectId
 # from whistle_server.models.window import Window
 import time
-from .post import Post
 
 def hash_password(password):
     from werkzeug.security import generate_password_hash
@@ -51,7 +50,6 @@ class User:
             return
         print("Found window")
         windows = self.obj["windows"]
-        print(windows)
         window_id = ObjectId(window_id)
         return window_id in windows
 
@@ -161,3 +159,4 @@ class User:
 
 from .window import Window
 from .group import Group
+from .post import Post

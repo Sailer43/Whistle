@@ -27,6 +27,9 @@ class Group:
     def delete(group_id):
         group = mongo.db.groups.delete_one({"_id": ObjectId(group_id)})
 
+    def reload(self):
+        self.obj = mongo.db.groups.find_one({"_id":self.obj["_id"]})
+
 
     @staticmethod
     def create(name):

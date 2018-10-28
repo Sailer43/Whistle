@@ -31,6 +31,8 @@ class Post:
             return None
         return Post(post)
 
+    def reload(self):
+        self.obj = mongo.db.posts.find_one({"_id":self.obj["_id"]})
 
     def serialize(self):
         response = self.obj
@@ -42,5 +44,8 @@ class Post:
         del response["_id"]
         return response
 
+    @staticmethod
+    def delete(post_id):
+        mongo.db.posts.delete_one({"_id": ObjectId(post_id)})
 
 from .user import User

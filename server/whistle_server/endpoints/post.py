@@ -10,7 +10,7 @@ class GetPostEndpoint(Resource):
     def get(self, post_id):
         post = Post.find_by_id(post_id)
         if post is None:
-            abort("404")
+            abort(404)
         post_data = post.serialize()
         response = jsonify(post_data)
         response.status_code = 200
@@ -19,22 +19,23 @@ class GetPostEndpoint(Resource):
 class CreatePostEndpoint(Resource):
     def post(self):
         if not session or "_session" not in session or not session["_session"]:
-            abort("401")
+            abort(401)
         user = User.find_by_id(session["_session"])
         if user is None:
-            abort("401")
+            abort(401)
         window_id = request.json.get("window_id")
         text = request.json.get("text")
         if window_id is None or text is None:
-            abort("400")
-
+            abort(404)
         # sanity check
         if not user.has_window(window_id):
-            abort("404")
+            print("abort")
+            abort(404)
         # check if it's time for the window
         window = Window.find_by_id(window_id)
+        print(window)
         if not window.is_active():
-            abort("400")
+            abort(404)
         post = Post.create(user.obj["_id"], text, window.obj["_id"])
         window.add_post(post.obj["_id"])
         user.add_post(post.obj["_id"])

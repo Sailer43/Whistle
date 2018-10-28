@@ -10,11 +10,11 @@ class UserEndpoint(Resource):
     def get(self, user_id=None):
         if user_id is None:
             if not session or "_session" not in session or not session["_session"]:
-                abort("401")
+                abort(401)
             user_id = session["_session"]
         user = User.find_by_id(user_id)
         if user is None:
-            abort("401")
+            abort(401)
         response = user.serialize()
         print(response)
         response = jsonify(response)
