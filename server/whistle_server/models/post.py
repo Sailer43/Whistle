@@ -6,15 +6,38 @@ class Post:
         self.obj = objectid
 
     @staticmethod
+    def find_by_id(post_id):
+        return Post.find_by_object_id(ObjectId(post_id))
+
+    @staticmethod
+    def find_by_object_id(object_id):
+        post = mongo.db.posts.find_one({"_id": object_id})
+        if post is None:
+            return None
+        return Post(post)
+
+    @staticmethod
     def create(user_id, text, window_id):
         obj = {}
-        obj["user_id"] = ObjectId(user_id)
+        obj["author_id"] = ObjectId(user_id)
         obj["text"] = text
         obj["window_id"] = ObjectId(window_id)
         obj["comments"] = []
-        obj["was_published"] = False
+        obj["published"] = False
+        obj["rating"] = 0
         post = mongo.db.posts.insert_one(obj)
         post = mongo.db.posts.find_one({"_id": post.inserted_id})
         if post is None:
             return None
         return Post(window)
+
+
+    def serialize(self):
+        response = self.obj
+        response["post_id"] = str(self.obj["_id"])
+        user = User.find_by_id(self.obj["author_id"])
+        response["author_name"] = user.obj["username"]
+        response["author_id"] = str(self.obj["author_id"])
+        response["window_id"] = str(self.obj["window_id"])
+        del response["_id"]
+        return response

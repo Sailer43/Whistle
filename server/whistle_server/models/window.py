@@ -1,7 +1,6 @@
 from whistle_server import mongo
 from bson.objectid import ObjectId
 import time
-from .user import User
 
 class Window:
 
@@ -87,7 +86,17 @@ class Window:
             return None
         return Window(window)
 
+    def serialize(self):
+        response = self.obj
+        response["group_id"] = str(self.obj["_id"])
+        del response["_id"]
+        del response["users"]
+        del response["posts"]
+        return response
 
     @staticmethod
     def delete(window_id):
         mongo.db.windows.delete_one({"_id": ObjectId(window_id)})
+
+
+from .user import User

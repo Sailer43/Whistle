@@ -27,11 +27,11 @@ def make_app():
     from .endpoints.post import GetPostEndpoint, CreatePostEndpoint
     from .endpoints.posts import GetPostsEndpoint
 
-    api.add_resource(UserEndpoint, '/user/<int:user_id>', endpoint="user")
+    api.add_resource(UserEndpoint, '/user', '/user/<string:user_id>', endpoint="user")
     api.add_resource(CreateUserEndpoint, '/user/create', endpoint="create_user")
     api.add_resource(LoginEndpoint, '/login', endpoint="login")
-    api.add_resource(GetPostEndpoint, '/post/<int:post_id>', endpoint="post")
-    api.add_resource(GetPostsEndpoint, '/posts/<int:group_id>', '/posts', endpoint="posts")
+    api.add_resource(GetPostEndpoint, '/post/<string:post_id>', endpoint="post")
+    api.add_resource(GetPostsEndpoint, '/posts/<string:group_id>', '/posts', endpoint="posts")
     api.add_resource(CreatePostEndpoint, '/post', endpoint="create_post")
 
     return app

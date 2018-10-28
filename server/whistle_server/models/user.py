@@ -89,7 +89,11 @@ class User:
 
     @staticmethod
     def find_by_id(user_id):
-        user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+        return User.find_by_object_id(ObjectId(user_id))
+
+    @staticmethod
+    def find_by_object_id(user_id):
+        user = mongo.db.users.find_one({"_id": user_id})
         if user is None:
             return None
         return User(user)
@@ -103,7 +107,7 @@ class User:
         obj = {}
         obj["username"] = username
         obj["password_hash"] = str(hash_password(password))
-        obj["groups"] = []
+        obj["groups"] = [ObjectId("5bd5609cfc31dabe575fe2cd")]
         obj["windows"] = []
         obj["rating"] = 0
         obj["avatar_url"] = ""
@@ -118,4 +122,37 @@ class User:
     def delete(user_id):
         mongo.db.users.delete_one({"_id": ObjectId(user_id)})
 
+    def serialize(self):
+        response = self.obj
+        print(response)
+        response["id"] = str(response["_id"])
+        del response["_id"]
+        del response["password_hash"]
+        print(response)
+        posts = []
+        for post_id in response["posts"]:
+            post = Post.find_by_object_id(post_id)
+            if post is not None:
+                posts.append(post.serialize())
+        response["posts"] = posts
+
+        windows = []
+        for window_id in response["windows"]:
+            window = Window.find_by_object_id(window_id)
+            if window is not None:
+                windows.append(window.serialize())
+        response["windows"] = windows
+
+        groups = []
+        for group_id in response["groups"]:
+            print(group_id)
+            group = Group.find_by_object_id(group_id)
+            print(group)
+            if group is not None:
+                groups.append(group.serialize())
+        print(groups)
+        response["groups"] = groups
+        return response
+
 from .window import Window
+from .group import Group

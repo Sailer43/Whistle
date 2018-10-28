@@ -4,10 +4,17 @@ from flask.json import jsonify
 
 from whistle_server.models.user import User
 from whistle_server.models.window import Window
+from whistle_server.models.post import Post
 
 class GetPostEndpoint(Resource):
-    def get(self, post_id=None):
-        return {}, 200
+    def get(self, post_id):
+        post = Post.find_by_id(post_id)
+        if post is None:
+            abort("404")
+        post_data = post.serialize()
+        response = jsonify(post_data)
+        response.status_code = 200
+        return response
 
 class CreatePostEndpoint(Resource):
     def post(self):
@@ -31,6 +38,7 @@ class CreatePostEndpoint(Resource):
         post = Post.create(user.obj["_id"], text, window.obj["_id"])
         window.add_post(post)
         user.add_post(post)
+        user.remove_window(window.obj["_id"])
         response = jsonify({"post_id": post.obj["_id"]})
         response.status_code = 200
         return response

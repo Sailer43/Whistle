@@ -3,7 +3,7 @@ from flask import request, g
 from flask.json import jsonify
 
 class GetPostsEndpoint(Resource):
-    def get(self, group_id=0):
+    def get(self, group_id="0"):
         response = jsonify(
             { "posts":  [   {
                             "text": "Hey, there",
