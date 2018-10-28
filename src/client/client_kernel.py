@@ -29,3 +29,11 @@ class ClientKernel:
 
     def logoff(self):
         self.cookies = None
+
+    def get_general_post(self):
+        r = requests.get(url + "/posts")
+        self.app.response = r
+
+    def get_single_post(self, post_id: str):
+        r = requests.get(url + "/posts/" + post_id)
+        self.app.response = r

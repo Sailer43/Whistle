@@ -1,3 +1,4 @@
+from json import loads
 from threading import Thread
 
 from kivy.app import App
@@ -31,7 +32,9 @@ class ClientApp(App):
     _write_screen = None
     _post_screen = None
     colors = {
-        "back01": [7 / 255, 54 / 255, 66 / 255, 1]
+        "back01": [7 / 255, 54 / 255, 66 / 255, 1],
+        "violet": [108 / 255, 113 / 255, 196 / 255, 1],
+        "cyan": [42 / 255, 161 / 255, 152 / 255, 1]
     }
 
     @overrides(App)
@@ -50,22 +53,25 @@ class ClientApp(App):
         self._login_screen = LoginScreen(name="login")
         self._register_screen = RegisterScreen(name="register")
         self._user_screen = UserScreen(name="user")
-        navi_down = NaviDropDown()
-
-        # HomeScreen
         self._home_screen = HomeScreen(name="home")
-        self._home_screen.navi_drop_down.bind(on_press=navi_down.open)
-
-        # WriteScreen
         self._write_screen = WriteScreen(name="write")
         self._post_screen = PostScreen(name="post")
+        drop_down = GroupDropDown()
+        navi_down = NaviDropDown()
+
+        for screen in [self._home_screen, self._post_screen, self._write_screen]:
+            screen.navi_drop_down.bind(on_press=navi_down.open)
+            screen.navi_drop_down.bind(on_release=drop_down.dismiss)
+            screen.group_drop_down.bind(on_press=drop_down.open)
+            screen.group_drop_down.bind(on_release=navi_down.dismiss)
+
         self._screen_manager.add_widget(self._login_screen)
         self._screen_manager.add_widget(self._register_screen)
         self._screen_manager.add_widget(self._user_screen)
         self._screen_manager.add_widget(self._home_screen)
         self._screen_manager.add_widget(self._write_screen)
         self._screen_manager.add_widget(self._post_screen)
-        self._change_screen("home", self._login_screen)
+        self._login_screen.login_username.focus = True
         return self._screen_manager
 
     @overrides(App)
@@ -96,8 +102,15 @@ class ClientApp(App):
     def _success(self, r: Response):
         if self._screen_manager.current_screen.name == "login":
             Clock.schedule_once(lambda dt: self._change_screen("home", self._login_screen))
+            Clock.schedule_once(lambda dt: self._get_general_post())
         elif self._screen_manager.current_screen.name == "register":
             Clock.schedule_once(lambda dt: self._change_screen("login", self._register_screen))
+        elif self._screen_manager.current_screen.name == "home":
+            data = loads(r.content.decode(encoding="utf-8"))
+            Clock.schedule_once(lambda dt: self._load_general_posts(data))
+        elif self._screen_manager.current_screen.name == "post":
+            data = loads(r.content.decode(encoding="utf-8"))
+            Clock.schedule_once(lambda dt: self._load_single_post(data))
 
     def _change_screen(self, target: str, previous_screen: Screen) -> None:
         if target == "login":
@@ -142,6 +155,20 @@ class ClientApp(App):
             screen.register_password.text = ""
             screen.register_snd_password.text = ""
 
+    def _load_general_posts(self, data: dict) -> None:
+        for entry in data['posts']:
+            new_entry = GeneralPostEntry()
+            new_entry.text = entry["text"]
+            new_entry.author_id = entry["author_id"]
+            new_entry.author_name = entry["author_name"]
+            new_entry.rating = entry["rating"]
+            new_entry.id = entry["id"]
+            self._home_screen.post_container.add_widget(new_entry)
+
+    def _load_single_post(self, data: dict) -> None:
+        print(data)
+        pass
+
     def _test(self):
         return
 
@@ -155,6 +182,15 @@ class ClientApp(App):
         else:
             thread = Thread(target=self.kernel.register, args=(username, password,))
             thread.start()
+
+    def _get_general_post(self):
+        thread = Thread(target=self.kernel.get_general_post())
+        thread.start()
+
+    def _get_single_post(self, post_id: str):
+        thread = Thread(target=self.kernel.get_single_post, args=(post_id,))
+        thread.start()
+        Clock.schedule_once(lambda dt: self._change_screen("post", self._screen_manager.current_screen))
 
     def _logoff(self) -> None:
         self.kernel.logoff()
@@ -173,7 +209,7 @@ class UserPostEntry(BoxLayout):
     pass
 
 
-class GroupDropDown(BoxLayout):
+class GroupDropDown(DropDown):
     state = BooleanProperty(False)
 
 
@@ -186,6 +222,10 @@ class ClickLabel(ButtonBehavior, Label):
 
 
 class ClickImage(ButtonBehavior, AsyncImage):
+    pass
+
+
+class GeneralPostEntry(BoxLayout):
     pass
 
 
@@ -217,14 +257,14 @@ class WriteScreen(Screen):
 
     def __init__(self, **kwargs):
         super(WriteScreen, self).__init__(**kwargs)
-        self.scroll_container.bind(minimum_height=self.scroll_container.setter('height'))
+        self.post_container.bind(minimum_height=self.post_container.setter('height'))
 
 
 class PostScreen(Screen):
 
     def __init__(self, **kwargs):
         super(PostScreen, self).__init__(**kwargs)
-        self.scroll_container.bind(minimum_height=self.scroll_container.setter('height'))
+        self.post_container.bind(minimum_height=self.post_container.setter('height'))
 
 
 def main():

@@ -1,0 +1,65 @@
+BoxLayout:
+                    orientation: 'horizontal'
+                    height: 50
+                    size_hint: (1, None)
+                    Label:
+                        text: "Comments:"
+                        font_size: 36
+                        width: 300
+                        size_hint: (None, 1)
+                    BoxLayout:
+                        size_hint: (1, 1)
+
+                BoxLayout:
+                    orientation: 'horizontal'
+                    height: 500
+                    size_hint: (1, None)
+
+                    Label:
+                        width: 80
+                        size_hint: (None, 1)
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint: (1, 1)
+                        TextInput:
+                            height: 150
+                            size_hint: (1, None)
+                        BoxLayout:
+                            orientation: 'horizontal'
+                            height: 50
+                            size_hint: (1, None)
+
+                            Button:
+                                text: "Save"
+                                size_x: 150
+                                size_hint: (None, 1)
+
+                            Button:
+                                text: "Discard"
+                                size_x: 150
+                                size_hint: (None, 1)
+
+                            BoxLayout:
+                                size_hint: (1, 1)
+
+                            Button:
+                                text: "Publish"
+                                size_x: 150
+                                size_hint: (None, 1)
+
+
+BoxLayout:
+                        orientation: 'vertical'
+                        width: 80
+                        size_hint: (None, None)
+                        ClickLabel:
+                            text: root.author
+                            font_size: 60
+                            size_hint: (1, 1)
+                            color: [1, 1, 1, 1]
+                        ClickImage:
+                            source: "https://imagej.net/_images/thumb/a/af/Tux.png/128px-Tux.png"
+                            size: (64, 64)
+                            size_hint: (None, None)
+                            on_press:
+                                app._change_screen("user", app._home_screen)
