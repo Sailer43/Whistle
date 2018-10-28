@@ -85,6 +85,7 @@ class Window:
             return None
         return Window(window)
 
+
     def serialize(self):
         response = self.obj
         group = Group.find_by_object_id(self.obj["group_id"])
@@ -100,9 +101,12 @@ class Window:
     def delete(window_id):
         mongo.db.windows.delete_one({"_id": ObjectId(window_id)})
 
-    @classmethod
+    @staticmethod
     def find_soonest_in_group(group_id):
-        return Window(mongo.db.windows.find({"group_id": group_id}, sort=[("start_time", 1)]))
+        soonest = mongo.db.windows.find_one({"group_id": group_id}, sort=[("start_time", 1)])
+        if soonest is None:
+            return None
+        return Window(soonest)
 
 from .user import User
 from .group import Group

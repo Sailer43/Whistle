@@ -125,6 +125,19 @@ class User:
     def delete(user_id):
         mongo.db.users.delete_one({"_id": ObjectId(user_id)})
 
+    @staticmethod
+    def sample_in_group(group_id, n):
+        return mongo.db.users.aggregate([
+            { "$sample": {"size": n} },
+            { "$match":  {"group_id": group_id} }
+        ])
+
+    def set_half(self):
+        mongo.db.posts.update_one({"_id": self.obj["_id"]},
+            {"$set":{"half": True}})
+        self.reload()
+
+
     def serialize(self):
         response = self.obj
         print(response)

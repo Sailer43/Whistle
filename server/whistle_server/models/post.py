@@ -44,6 +44,11 @@ class Post:
         del response["_id"]
         return response
 
+    def publish(self):
+        mongo.db.posts.update_one({"_id": self.obj["_id"]},
+            {"$set":{"published": True}})
+        self.reload()
+
     @staticmethod
     def delete(post_id):
         mongo.db.posts.delete_one({"_id": ObjectId(post_id)})

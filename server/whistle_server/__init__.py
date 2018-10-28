@@ -26,6 +26,7 @@ def make_app():
     from .endpoints.login import LoginEndpoint, CreateUserEndpoint
     from .endpoints.post import GetPostEndpoint, CreatePostEndpoint
     from .endpoints.posts import GetPostsEndpoint
+    from .endpoints.scheduler import SchedulerEndpoint
 
     api.add_resource(UserEndpoint, '/user', '/user/<string:user_id>', endpoint="user")
     api.add_resource(CreateUserEndpoint, '/user/create', endpoint="create_user")
@@ -33,5 +34,6 @@ def make_app():
     api.add_resource(GetPostEndpoint, '/post/<string:post_id>', endpoint="post")
     api.add_resource(GetPostsEndpoint, '/posts/<string:group_id>', '/posts', endpoint="posts")
     api.add_resource(CreatePostEndpoint, '/post', endpoint="create_post")
+    api.add_resource(SchedulerEndpoint, '/schedule', endpoint="scheduler")
 
     return app

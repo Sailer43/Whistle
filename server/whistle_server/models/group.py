@@ -31,6 +31,19 @@ class Group:
         self.obj = mongo.db.groups.find_one({"_id":self.obj["_id"]})
 
 
+    def add_post(self, post_id):
+        mongo.db.groups.update_one({"_id":self.obj["_id"]},
+            {"$push": {"posts":ObjectId(post_id)}})
+        self.reload()
+        return True
+
+    def remove_post(self, post_id):
+        mongo.db.groups.remove_one({"_id":self.obj["_id"]},
+            {"$pull": {"posts":ObjectId(post_id)}})
+        self.reload()
+        return True
+
+
     @staticmethod
     def create(name):
         group = Group.find_by_name(name)
@@ -39,8 +52,8 @@ class Group:
         obj = {"name": name}
         obj["posts"] = []
         obj["interval"] = 60*60^6
-        group = mongo.db.users.insert_one(obj)
-        group = mongo.db.users.find_one({"_id": group.inserted_id})
+        group = mongo.db.groups.insert_one(obj)
+        group = mongo.db.groups.find_one({"_id": group.inserted_id})
         if group is None:
             return None
         return Group(group)
