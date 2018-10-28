@@ -4,8 +4,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import ConfigParser
 from kivy.core.window import Window
-from kivy.lang import Builder
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -48,30 +47,25 @@ class ClientApp(App):
     @overrides(App)
     def build(self) -> Widget:
         Window.size = (500, 200)
-        Builder.load_file("client.kv")
         self._login_screen = LoginScreen(name="login")
         self._register_screen = RegisterScreen(name="register")
         self._user_screen = UserScreen(name="user")
+        navi_down = NaviDropDown()
+
+        # HomeScreen
         self._home_screen = HomeScreen(name="home")
-        drop_down = HomeDropDown()
-        self._home_screen.drop_down_button.bind(on_press=drop_down.open)
+        self._home_screen.navi_drop_down.bind(on_press=navi_down.open)
+
+        # WriteScreen
         self._write_screen = WriteScreen(name="write")
-        self._write_screen.drop_down_button.bind(on_press=drop_down.open)
         self._post_screen = PostScreen(name="post")
-        self._post_screen.drop_down_button.bind(on_press=drop_down.open)
         self._screen_manager.add_widget(self._login_screen)
         self._screen_manager.add_widget(self._register_screen)
         self._screen_manager.add_widget(self._user_screen)
         self._screen_manager.add_widget(self._home_screen)
         self._screen_manager.add_widget(self._write_screen)
         self._screen_manager.add_widget(self._post_screen)
-        self._user_screen.remove_widget(self._user_screen.children[1])
-        self._write_screen.remove_widget(self._write_screen.children[1])
-        self._post_screen.remove_widget(self._post_screen.children[1])
-        # for entry in self._user_screen.post_container.children:
-        #     entry.remove_widget(entry.children[0])
-        #     entry.remove_widget(entry.children[0])
-        self._change_screen("user", self._login_screen)
+        self._change_screen("home", self._login_screen)
         return self._screen_manager
 
     @overrides(App)
@@ -179,7 +173,11 @@ class UserPostEntry(BoxLayout):
     pass
 
 
-class HomeDropDown(DropDown):
+class GroupDropDown(BoxLayout):
+    state = BooleanProperty(False)
+
+
+class NaviDropDown(DropDown):
     pass
 
 
@@ -210,15 +208,12 @@ class UserScreen(Screen):
 
 
 class HomeScreen(Screen):
-    drop_down = HomeDropDown()
-
     def __init__(self, **kwargs):
         super(HomeScreen, self).__init__(**kwargs)
         self.post_container.bind(minimum_height=self.post_container.setter('height'))
 
 
 class WriteScreen(Screen):
-    drop_down = HomeDropDown()
 
     def __init__(self, **kwargs):
         super(WriteScreen, self).__init__(**kwargs)
@@ -226,7 +221,6 @@ class WriteScreen(Screen):
 
 
 class PostScreen(Screen):
-    drop_down = HomeDropDown()
 
     def __init__(self, **kwargs):
         super(PostScreen, self).__init__(**kwargs)

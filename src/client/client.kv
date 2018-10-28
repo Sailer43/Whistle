@@ -233,7 +233,47 @@
     size_hint_y: None
     background_color: [101/256, 123/256, 131/256, 0.75]
 
-<HomeDropDown>:
+<GroupDropDown>:
+    Button:
+        id: mainbtn
+        text: 'Difficulty Level'
+        on_release:
+            root.state = False
+            dropdown.o
+        size_hint_y: None
+        height: 50
+
+    DropDown:
+        id: dropdown
+        on_parent:
+            root.state = False
+            self.dismiss()
+        on_select: mainbtn.text = '{}'.format(args[1]); root.state = False
+        width: window.Window.size[0] - 150
+        Button:
+            text: 'User'
+            size_hint_y: None
+            height: 50
+            on_release:
+                root.dismiss()
+                app._change_screen("user", app._screen_manager.current_screen)
+        Button:
+            text: 'Write'
+            size_hint_y: None
+            height: 50
+            on_release:
+                root.dismiss()
+                app._change_screen("write", app._screen_manager.current_screen)
+        Button:
+            text: 'Home'
+            size_hint_y: None
+            height: 50
+            on_release:
+                root.dismiss()
+                root.dismiss()
+                app._change_screen("home", app._screen_manager.current_screen)
+
+<NaviDropDown>:
     auto_dismiss: False
     auto_width: False
     width: window.Window.size[0] - 150
@@ -261,6 +301,8 @@
             app._change_screen("home", app._screen_manager.current_screen)
 
 <Header>:
+    group_drop_down: None
+    navi_drop_down1: navi_drop_down1.__self__
     orientation: 'horizontal'
     spacing: 10
     height: 50
@@ -287,12 +329,10 @@
             on_press:
                 app._change_screen("user", app._home_screen)
 
-    Button:
-        id: drop_down_button
-        text: "Change Group"
-        size_hint: (1, 1)
+    GroupDropDown
 
     Button:
+        id: navi_drop_down1
         text: 'Navigation'
         width: 100
         size_hint: (None, 1)
@@ -433,7 +473,8 @@
 
 <HomeScreen>:
     post_container: post_container.__self__
-    drop_down_button: drop_down_button.__self__
+    navi_drop_down: header.navi_drop_down1
+    header: header.__self__
     canvas.before:
         Color:
             rgba: app.colors["back01"]
@@ -444,44 +485,8 @@
         orientation: 'vertical'
         padding: [20, 20, 20, 20]
 
-        BoxLayout:
-            orientation: 'horizontal'
-            spacing: 10
-            height: 50
-            size_hint: (1, None)
-
-            BoxLayout:
-                orientation: 'horizontal'
-                padding: [0, 9, 0, 9]
-                spacing: 10
-                width: 100
-                size_hint: (None, 1)
-
-                ClickImage:
-                    source: "https://imagej.net/_images/thumb/a/af/Tux.png/128px-Tux.png"
-                    width: 32
-                    size_hint: (None, 1)
-                    on_press:
-                        app._change_screen("user", app._home_screen)
-
-                ClickLabel:
-                    text: 'username'
-                    size_hint: (1, 1)
-                    background: [7/256, 54/256, 66/256, 0]
-                    on_press:
-                        app._change_screen("user", app._home_screen)
-
-            Button:
-                id: drop_down_button
-                text: "Change Group"
-                size_hint: (1, 1)
-
-            Button:
-                text: 'Logoff'
-                width: 100
-                size_hint: (None, 1)
-                on_press:
-                    app._logoff()
+        Header:
+            id: header
 
         BoxLayout:
             ScrollView:
