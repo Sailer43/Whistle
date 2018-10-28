@@ -1,7 +1,38 @@
 from flask_restful import abort, Resource
-from flask import request, g
+from flask import request, g, session
 from flask.json import jsonify
 
-class PostEndpoint(Resource):
-    def get(self, post_id):
+from whistle_server.models.user import User
+from whistle_server.models.window import Window
+
+class GetPostEndpoint(Resource):
+    def get(self, post_id=None):
         return {}, 200
+
+class CreatePostEndpoint(Resource):
+    def post(self):
+        if not session or "_session" not in session or not session["_session"]:
+            abort("401")
+        user = User.find_by_id(session["_session"])
+        if user is None:
+            abort("401")
+        window_id = request.json.get("window_id")
+        text = request.json.get("text")
+        if window_id is None or text is None:
+            abort("400")
+
+        # sanity check
+        if not user.has_window(window_id):
+            abort("400")
+        # check if it's time for the window
+        window = Window.find_by_id(window_id)
+        if not window.is_active():
+            abort("400")
+        post = Post.create(user.obj["_id"], text, window.obj["_id"])
+        window.add_post(post)
+        user.add_post(post)
+        response = jsonify({"post_id": post.obj["_id"]})
+        response.status_code = 200
+        return response
+
+

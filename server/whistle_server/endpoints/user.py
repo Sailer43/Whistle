@@ -3,5 +3,5 @@ from flask import request, g
 from flask.json import jsonify
 
 class UserEndpoint(Resource):
-    def get(self, user_id):
+    def get(self, user_id=None):
         return {}, 200
