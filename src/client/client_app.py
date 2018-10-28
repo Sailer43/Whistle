@@ -1,5 +1,6 @@
 from json import loads
 from threading import Thread
+from time import time
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -65,6 +66,7 @@ class ClientApp(App):
             screen.navi_drop_down.bind(on_press=self._on_navi)
             screen.group_drop_down.bind(on_press=self._on_group)
 
+        self._user_screen.group_drop_down.bind(on_press=self._group_down.open)
         self._screen_manager.add_widget(self._login_screen)
         self._screen_manager.add_widget(self._register_screen)
         self._screen_manager.add_widget(self._user_screen)
@@ -111,6 +113,9 @@ class ClientApp(App):
         elif self._screen_manager.current_screen.name == "post":
             data = loads(r.content.decode(encoding="utf-8"))
             Clock.schedule_once(lambda dt: self._load_single_post(data))
+        elif self._screen_manager.current_screen.name == "user":
+            data = loads(r.content.decode(encoding="utf-8"))
+            Clock.schedule_once(lambda dt: self._load_user_page(data))
 
     def _change_screen(self, target: str, previous_screen: Screen) -> None:
         if target == "login":
@@ -129,6 +134,7 @@ class ClientApp(App):
             self._screen_exit(previous_screen)
             if Window.size != (800, 700):
                 Window.size = (800, 700)
+            self._group_down.width = Window.size[0] - 230
             self._screen_manager.current = "user"
         elif target == "home":
             self._screen_exit(previous_screen)
@@ -147,6 +153,8 @@ class ClientApp(App):
             self._screen_manager.current = "post"
 
     def _screen_exit(self, screen: Screen) -> None:
+        self._group_down.dismiss()
+        self._navi_down.dismiss()
         if type(screen) is LoginScreen:
             screen.login_username.text = ""
             screen.login_password.text = ""
@@ -154,6 +162,8 @@ class ClientApp(App):
             screen.register_username.text = ""
             screen.register_password.text = ""
             screen.register_snd_password.text = ""
+        elif type(screen) is UserScreen:
+            self._group_down.width = Window.size[0] - 150
 
     def _load_general_posts(self, data: dict) -> None:
         for entry in data['posts']:
@@ -162,12 +172,57 @@ class ClientApp(App):
             new_entry.author_id = entry["author_id"]
             new_entry.author_name = entry["author_name"]
             new_entry.rating = entry["rating"]
-            new_entry.id = entry["id"]
+            new_entry.post_id = entry["post_id"]
+            new_entry.published = entry["published"]
             self._home_screen.post_container.add_widget(new_entry)
 
     def _load_single_post(self, data: dict) -> None:
         print(data)
         pass
+
+    def _load_user_page(self, data: dict) -> None:
+        self._user_screen.username = data["username"]
+        self._user_screen.avatar_url = data["avatar_url"]
+        self._user_screen.rating = data["rating"]
+        self._user_screen.user_id = data["user_id"]
+        self._user_screen.posts = data["posts"]
+        self._user_screen.groups = data["groups"]
+        self._user_screen.post_container.clear_widgets()
+        for window in data["windows"]:
+            new_entry = WindowEntry()
+            # new_entry.group = window["group"]
+            new_entry.start_time = window["start_time"]
+            new_entry.duration = window["duration"]
+            new_entry.window_id = window["window_id"]
+            self._user_screen.post_container.add_widget(new_entry)
+        for entry in data["posts"]:
+            new_entry.text = entry["text"]
+            new_entry.author_id = entry["author_id"]
+            new_entry.author_name = entry["author_name"]
+            new_entry.rating = entry["rating"]
+            new_entry.post_id = entry["post_id"]
+            new_entry.published = entry["published"]
+        self._update_group_down(data["groups"])
+        Clock.schedule_interval(self._update_count_down, 1)
+
+    def _update_group_down(self, data: list):
+        self._group_down.clear_widgets()
+        for entry in data:
+            new_entry = GroupEntry()
+            new_entry.group = entry["name"]
+            new_entry.group_id = entry["group_id"]
+            self._group_down.add_widget(new_entry)
+
+    def _update_count_down(self, arg):
+        if self._screen_manager.current_screen.name != "user":
+            return False
+        for window in self._user_screen.post_container.children:
+            if type(window) is WindowEntry:
+                remaining_time = window.start_time + window.duration - time()
+                window.count_down.text = "{}:{}:{}".format(int(remaining_time / 3600),
+                                                           int((remaining_time % 3600) / 60),
+                                                           int(remaining_time % 60))
+        return True
 
     def _test(self):
         return
@@ -191,6 +246,11 @@ class ClientApp(App):
         thread = Thread(target=self.kernel.get_single_post, args=(post_id,))
         thread.start()
         Clock.schedule_once(lambda dt: self._change_screen("post", self._screen_manager.current_screen))
+
+    def _get_own_page(self):
+        thread = Thread(target=self.kernel.get_own_page)
+        thread.start()
+        Clock.schedule_once(lambda dt: self._change_screen("user", self._screen_manager.current_screen))
 
     def _logoff(self) -> None:
         self.kernel.logoff()
@@ -234,6 +294,14 @@ class ClickImage(ButtonBehavior, AsyncImage):
 
 
 class GeneralPostEntry(BoxLayout):
+    pass
+
+
+class WindowEntry(BoxLayout):
+    pass
+
+
+class GroupEntry(Button):
     pass
 
 

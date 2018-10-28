@@ -37,3 +37,7 @@ class ClientKernel:
     def get_single_post(self, post_id: str):
         r = requests.get(url + "/posts/" + post_id)
         self.app.response = r
+
+    def get_own_page(self):
+        r = requests.get(url + "/user", cookies=self.cookies)
+        self.app.response = r
