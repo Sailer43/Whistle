@@ -29,7 +29,7 @@ class Post:
         post = mongo.db.posts.find_one({"_id": post.inserted_id})
         if post is None:
             return None
-        return Post(window)
+        return Post(post)
 
 
     def serialize(self):
