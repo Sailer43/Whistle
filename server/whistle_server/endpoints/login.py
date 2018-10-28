@@ -23,7 +23,7 @@ class LoginEndpoint(Resource):
             return abort(418)
         session["_session"] = str(user.obj['_id'])
         response = jsonify({
-                "id": str(user.obj["_id"])
+                "user_id": str(user.obj["_id"])
             })
         response.status_code = 201
         return response
