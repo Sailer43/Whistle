@@ -157,6 +157,6 @@ class User:
         response["groups"] = groups
         return response
 
-from .window import Window
 from .group import Group
+from .window import Window
 from .post import Post

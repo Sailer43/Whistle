@@ -100,5 +100,8 @@ class Window:
     def delete(window_id):
         mongo.db.windows.delete_one({"_id": ObjectId(window_id)})
 
+    @classmethod
+    def find_soonest_in_group(group_id):
+        return Window(mongo.db.windows.find({"group_id": group_id}, sort=[("start_time", 1)]))
 
 from .user import User
