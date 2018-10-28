@@ -5,7 +5,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import ConfigParser
 from kivy.core.window import Window
-from kivy.properties import ObjectProperty, BooleanProperty
+from kivy.properties import ObjectProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -31,6 +31,8 @@ class ClientApp(App):
     _home_screen = None
     _write_screen = None
     _post_screen = None
+    _navi_down = None
+    _group_down = None
     colors = {
         "back01": [7 / 255, 54 / 255, 66 / 255, 1],
         "violet": [108 / 255, 113 / 255, 196 / 255, 1],
@@ -56,14 +58,12 @@ class ClientApp(App):
         self._home_screen = HomeScreen(name="home")
         self._write_screen = WriteScreen(name="write")
         self._post_screen = PostScreen(name="post")
-        drop_down = GroupDropDown()
-        navi_down = NaviDropDown()
+        self._group_down = GroupDropDown()
+        self._navi_down = NaviDropDown()
 
         for screen in [self._home_screen, self._post_screen, self._write_screen]:
-            screen.navi_drop_down.bind(on_press=navi_down.open)
-            screen.navi_drop_down.bind(on_release=drop_down.dismiss)
-            screen.group_drop_down.bind(on_press=drop_down.open)
-            screen.group_drop_down.bind(on_release=navi_down.dismiss)
+            screen.navi_drop_down.bind(on_press=self._on_navi)
+            screen.group_drop_down.bind(on_press=self._on_group)
 
         self._screen_manager.add_widget(self._login_screen)
         self._screen_manager.add_widget(self._register_screen)
@@ -196,6 +196,14 @@ class ClientApp(App):
         self.kernel.logoff()
         Clock.schedule_once(lambda dt: self._change_screen("login", self._screen_manager.current_screen))
 
+    def _on_navi(self, instance):
+        self._navi_down.open(instance)
+        self._group_down.dismiss()
+
+    def _on_group(self, instance):
+        self._group_down.open(instance)
+        self._navi_down.dismiss()
+
     def _alter(self, msg: str):
         content = Button(text=msg)
         alert = Popup(title="Alert:",
@@ -210,7 +218,7 @@ class UserPostEntry(BoxLayout):
 
 
 class GroupDropDown(DropDown):
-    state = BooleanProperty(False)
+    pass
 
 
 class NaviDropDown(DropDown):

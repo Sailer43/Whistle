@@ -244,14 +244,13 @@
         height: 50
         on_release:
             root.dismiss()
-            app._change_screen("write", app._screen_manager.current_screen)
+
     Button:
         text: 'Home'
         size_hint_y: None
         height: 50
         on_release:
             root.dismiss()
-            app._change_screen("home", app._screen_manager.current_screen)
 
 <GroupDropDown>:
     auto_dismiss: False
@@ -263,22 +262,20 @@
         height: 50
         on_release:
             root.dismiss()
-            app._change_screen("user", app._screen_manager.current_screen)
+
     Button:
         text: 'Write'
         size_hint_y: None
         height: 50
         on_release:
             root.dismiss()
-            app._change_screen("write", app._screen_manager.current_screen)
+
     Button:
         text: 'Home'
         size_hint_y: None
         height: 50
         on_release:
             root.dismiss()
-            root.dismiss()
-            app._change_screen("home", app._screen_manager.current_screen)
 
 <Header>:
     group_drop_down: None
@@ -316,13 +313,12 @@
 
         Button:
             id: group_drop_down1
-            text: 'Navigation'
+            text: 'Group'
             size_hint: (0.6, 1)
 
         Button:
             id: navi_drop_down1
             text: 'Navigation'
-            width: 250
             size_hint: (0.4, 1)
 
 <UserScreen>:
