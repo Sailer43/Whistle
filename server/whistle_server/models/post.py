@@ -3,7 +3,7 @@ from bson.objectid import ObjectId
 
 class Post:
     def __init__(self, obj):
-        self.obj = objectid
+        self.obj = obj
 
     @staticmethod
     def find_by_id(post_id):
@@ -41,3 +41,6 @@ class Post:
         response["window_id"] = str(self.obj["window_id"])
         del response["_id"]
         return response
+
+
+from .user import User

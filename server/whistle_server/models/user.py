@@ -2,6 +2,7 @@ from whistle_server import mongo
 from bson.objectid import ObjectId
 # from whistle_server.models.window import Window
 import time
+from .post import Post
 
 def hash_password(password):
     from werkzeug.security import generate_password_hash
@@ -42,11 +43,15 @@ class User:
 
     def has_window(self, window_id):
         # from whistle_server.models.window import Window
-
+        print("Im here")
         window = Window.find_by_id(window_id)
+        print("Got window")
+        print(window)
         if window is None:
-            return False
+            return
+        print("Found window")
         windows = self.obj["windows"]
+        print(windows)
         window_id = ObjectId(window_id)
         return window_id in windows
 
@@ -58,7 +63,7 @@ class User:
 
     def remove_post(self, post_id):
         mongo.db.users.remove_one({"_id":self.obj["_id"]},
-            {"$pop": {"posts":{"_id":ObjectId(post_id)}}})
+            {"$pull": {"posts":{"_id":ObjectId(post_id)}}})
         self.reload()
         return True
 
@@ -73,7 +78,7 @@ class User:
 
     def remove_window(self, window_id):
         mongo.db.users.update_one({"_id":self.obj["_id"]},
-            {"$pop": {"windows":{"_id":ObjectId(window_id)}}})
+            {"$pull": {"windows":{"_id":ObjectId(window_id)}}})
         self.reload()
         return True
 

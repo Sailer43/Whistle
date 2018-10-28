@@ -30,16 +30,17 @@ class CreatePostEndpoint(Resource):
 
         # sanity check
         if not user.has_window(window_id):
-            abort("400")
+            abort("404")
         # check if it's time for the window
         window = Window.find_by_id(window_id)
         if not window.is_active():
             abort("400")
         post = Post.create(user.obj["_id"], text, window.obj["_id"])
-        window.add_post(post)
-        user.add_post(post)
+        window.add_post(post.obj["_id"])
+        user.add_post(post.obj["_id"])
         user.remove_window(window.obj["_id"])
-        response = jsonify({"post_id": post.obj["_id"]})
+
+        response = jsonify(post.serialize())
         response.status_code = 200
         return response
 
