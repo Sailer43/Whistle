@@ -38,6 +38,7 @@ class Group:
             return None
         obj = {"name": name}
         obj["posts"] = []
+        obj["interval"] = 60*60^6
         group = mongo.db.users.insert_one(obj)
         group = mongo.db.users.find_one({"_id": group.inserted_id})
         if group is None:

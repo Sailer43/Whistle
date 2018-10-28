@@ -2,19 +2,21 @@ import os
 import tempfile
 import pytest
 import time
-from .context import make_app, mongo, User, Window
+from .context import make_app, mongo, User, Window, Group
 
 class TestUser:
     def setup(self):
         self.user = User.create("pytest", "pytest")
+        self.group = Group.create("name")
         if self.user is None:
             self.user = User.find_by_username("pytest")
-        self.window = Window.create(time.time(), 1000)
+        self.window = Window.create(time.time(), 1000, self.group.obj["_id"])
 
     def teardown(self):
         print("\nTearing down")
         User.delete(self.user.obj["_id"])
         Window.delete(self.window.obj["_id"])
+        Group.delete(self.group.obj["_id"])
 
     def test_user_exists(self):
         user = User.find_by_username("pytest")
@@ -44,14 +46,16 @@ class TestUser:
 class TestWindow:
     def setup(self):
         self.user = User.create("pytest", "pytest")
+        self.group = Group.create("name")
         if self.user is None:
             self.user = User.find_by_username("pytest")
-        self.window = Window.create(time.time(), 1000)
+        self.window = Window.create(time.time(), 1000, self.group.obj["_id"])
 
     def teardown(self):
         print("\nTearing down")
         User.delete(self.user.obj["_id"])
         Window.delete(self.window.obj["_id"])
+        Group.delete(self.group.obj["_id"])
 
     def test_add_user(self):
         assert len(self.window.obj["users"])==0

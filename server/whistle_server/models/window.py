@@ -71,11 +71,12 @@ class Window:
         return Window(window)
 
     @staticmethod
-    def create(start_time, duration):
+    def create(start_time, duration, group_id):
         obj = {}
         obj["start_time"] = start_time
         obj["duration"] = duration
         obj["publish_time"] = start_time + duration
+        obj["group_id"] = ObjectId(group_id)
         obj["users"] = []
         obj["posts"] = []
         window = mongo.db.windows.insert_one(obj)
@@ -86,6 +87,9 @@ class Window:
 
     def serialize(self):
         response = self.obj
+        group = Group.find_by_object_id(self.obj["group_id"])
+        response["group"] = group.obj["name"]
+        response["group_id"] = str(response["group_id"])
         response["window_id"] = str(self.obj["_id"])
         del response["_id"]
         del response["users"]

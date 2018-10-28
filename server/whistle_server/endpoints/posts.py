@@ -10,7 +10,7 @@ class GetPostsEndpoint(Resource):
     def get(self, group_id="5bd5609cfc31dabe575fe2cd"):
         group = Group.find_by_id(group_id)
         if group is None:
-            abort("404")
+            abort(404)
         posts = []
         for post_id in group.obj["posts"]:
             post = Post.find_by_object_id(post_id)
