@@ -105,3 +105,4 @@ class Window:
         return Window(mongo.db.windows.find({"group_id": group_id}, sort=[("start_time", 1)]))
 
 from .user import User
+from .group import Group
