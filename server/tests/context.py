@@ -7,6 +7,7 @@ from whistle_server import make_app, mongo
 from whistle_server.models.user import User
 from whistle_server.models.window import Window
 from whistle_server.models.post import Post
+from whistle_server.models.group import Group
 
 app = make_app()
 mongo.init_app(app)

@@ -125,7 +125,7 @@ class User:
     def serialize(self):
         response = self.obj
         print(response)
-        response["id"] = str(response["_id"])
+        response["user_id"] = str(response["_id"])
         del response["_id"]
         del response["password_hash"]
         print(response)

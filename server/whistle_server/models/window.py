@@ -88,7 +88,7 @@ class Window:
 
     def serialize(self):
         response = self.obj
-        response["group_id"] = str(self.obj["_id"])
+        response["window_id"] = str(self.obj["_id"])
         del response["_id"]
         del response["users"]
         del response["posts"]
