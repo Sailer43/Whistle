@@ -42,9 +42,18 @@ class ClientKernel:
         r = requests.get(url + "/user", cookies=self.cookies)
         self.app.response = r
 
+    def get_conditional_post(self, group_id):
+        r = requests.get(url + "/posts/" + group_id)
+        self.app.response = r
+
     def publish_post(self, text: str, window_id: str):
         data = {
             "text": text,
             "window_id": window_id,
         }
         r = requests.post(url + "/post", json=data, cookies=self.cookies)
+        self.app.response = r
+
+    def fetch_user(self):
+        r = requests.get(url + "/user", cookies=self.cookies)
+        return r

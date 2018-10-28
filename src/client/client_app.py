@@ -34,10 +34,11 @@ class ClientApp(App):
     _post_screen = None
     _navi_down = None
     _group_down = None
+    general_count = True
     username = StringProperty()
     current_group = StringProperty("World")
-    current_window = StringProperty("")
     post_history = dict()
+    group_to_window = dict()
     colors = {
         "back01": [7 / 255, 54 / 255, 66 / 255, 1],
         "violet": [108 / 255, 113 / 255, 196 / 255, 1],
@@ -109,6 +110,7 @@ class ClientApp(App):
         if self._screen_manager.current_screen.name == "login":
             Clock.schedule_once(lambda dt: self._change_screen("home", self._login_screen))
             Clock.schedule_once(lambda dt: self._get_general_post())
+            Clock.schedule_once(lambda dt: self._update_group_to_window())
         elif self._screen_manager.current_screen.name == "register":
             Clock.schedule_once(lambda dt: self._change_screen("login", self._register_screen))
         elif self._screen_manager.current_screen.name == "home":
@@ -120,6 +122,9 @@ class ClientApp(App):
         elif self._screen_manager.current_screen.name == "user":
             data = loads(r.content.decode(encoding="utf-8"))
             Clock.schedule_once(lambda dt: self._load_user_page(data))
+        elif self._screen_manager.current_screen.name == "write":
+            data = loads(r.content.decode(encoding="utf-8"))
+            Clock.schedule_once(lambda dt: self._get_single_post(data["post_id"]))
 
     def _change_screen(self, target: str, previous_screen: Screen) -> None:
         if target == "login":
@@ -150,6 +155,7 @@ class ClientApp(App):
             if Window.size != (800, 700):
                 Window.size = (800, 700)
             self._screen_manager.current = "write"
+            Clock.schedule_interval(self._update_count_down, 1)
         elif target == "post":
             self._screen_exit(previous_screen)
             if Window.size != (800, 700):
@@ -168,8 +174,11 @@ class ClientApp(App):
             screen.register_snd_password.text = ""
         elif type(screen) is UserScreen:
             self._group_down.width = Window.size[0] - 150
+        elif type(screen) is WriteScreen:
+            self.post_history[self.current_group] = self._write_screen.input.text
 
     def _load_general_posts(self, data: dict) -> None:
+        self._home_screen.post_container.clear_widgets()
         for entry in data['posts']:
             new_entry = GeneralPostEntry()
             new_entry.text = entry["text"]
@@ -197,13 +206,18 @@ class ClientApp(App):
         self._user_screen.posts = data["posts"]
         self._user_screen.groups = data["groups"]
         self._user_screen.post_container.clear_widgets()
+        self._write_screen.post_container.clear_widgets()
+        count = 0
         for window in data["windows"]:
+            count += 1
             new_entry = WindowEntry()
-            # new_entry.group = window["group"]
+            new_entry.group = window["group"]
             new_entry.start_time = window["start_time"]
             new_entry.duration = window["duration"]
             new_entry.window_id = window["window_id"]
-            self._user_screen.post_container.add_widget(new_entry)
+            self._write_screen.post_container.add_widget(new_entry, 0)
+        if count > 0:
+            self._user_screen.write.background_color = [0, 1, 0, 1]
         for entry in data["posts"]:
             new_entry = GeneralPostEntry()
             new_entry.text = entry["text"]
@@ -214,7 +228,6 @@ class ClientApp(App):
             new_entry.published = entry["published"]
             self._user_screen.post_container.add_widget(new_entry)
         self._update_group_down(data["groups"])
-        Clock.schedule_interval(self._update_count_down, 1)
 
     def _update_group_down(self, data: list):
         self._group_down.clear_widgets()
@@ -225,15 +238,45 @@ class ClientApp(App):
             self._group_down.add_widget(new_entry)
 
     def _update_count_down(self, arg):
-        if self._screen_manager.current_screen.name != "user":
+        if self._screen_manager.current_screen.name != "write":
             return False
-        for window in self._user_screen.post_container.children:
+        for window in self._write_screen.post_container.children:
             if type(window) is WindowEntry:
                 remaining_time = window.start_time + window.duration - time()
                 window.count_down.text = "{}:{}:{}".format(int(remaining_time / 3600),
                                                            int((remaining_time % 3600) / 60),
                                                            int(remaining_time % 60))
         return True
+
+    def _update_post_history(self, next_group):
+        self.post_history[self.current_group] = self._write_screen.input.text
+        try:
+            self._write_screen.input.text = self.post_history[next_group]
+        except KeyError:
+            self._write_screen.input.text = ""
+
+    def _update_timer(self, data):
+        self._write_screen.post_container.clear_widgets()
+        count = 0
+        for window in data["windows"]:
+            count += 1
+            new_entry = WindowEntry()
+            new_entry.group = window["group"]
+            new_entry.start_time = window["start_time"]
+            new_entry.duration = window["duration"]
+            new_entry.window_id = window["window_id"]
+            self._write_screen.post_container.add_widget(new_entry, 0)
+        if count > 0:
+            self._user_screen.write.background_color = [0, 1, 0, 1]
+
+    def _update_group_to_window(self):
+        r = self.kernel.fetch_user()
+        if self._screen_manager.current_screen.name == "home":
+            data = loads(r.content.decode(encoding="utf-8"))
+            for entry in data["windows"]:
+                self.group_to_window[entry["group"]] = entry["window_id"]
+        self._update_group_down(data["groups"])
+        self._update_timer(data)
 
     def _test(self):
         return
@@ -251,8 +294,18 @@ class ClientApp(App):
             thread.start()
 
     def _get_general_post(self):
-        thread = Thread(target=self.kernel.get_general_post())
-        thread.start()
+        if self.general_count:
+            thread = Thread(target=self.kernel.get_general_post())
+            thread.start()
+            self.general_count = False
+        else:
+            Clock.schedule_once(lambda dt: self._change_screen("home", self._screen_manager.current_screen))
+            group_id = "0"
+            for entry in self._group_down.children[0].children:
+                if entry.text == self.current_group:
+                    group_id = entry.group_id
+                    break
+            self._update_posts(group_id)
 
     def _get_single_post(self, post_id: str):
         thread = Thread(target=self.kernel.get_single_post, args=(post_id,))
@@ -265,8 +318,11 @@ class ClientApp(App):
         Clock.schedule_once(lambda dt: self._change_screen("user", self._screen_manager.current_screen))
 
     def _publish_post(self, text: str):
-        thread = Thread(target=self.kernel.publish_post, args=(text, self.current_window,))
-        thread.start()
+        try:
+            thread = Thread(target=self.kernel.publish_post, args=(text, self.group_to_window[self.current_group],))
+            thread.start()
+        except KeyError:
+            self._alter("No open window for Group " + self.current_group)
 
     def _logoff(self) -> None:
         self.kernel.logoff()
@@ -287,6 +343,10 @@ class ClientApp(App):
                       auto_dismiss=False)
         content.bind(on_press=alert.dismiss)
         alert.open()
+
+    def _update_posts(self, group_id):
+        if self._screen_manager.current_screen.name == "home":
+            Clock.schedule_once(lambda dt: self.kernel.get_conditional_post(group_id))
 
 
 class UserPostEntry(BoxLayout):
