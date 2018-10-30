@@ -1,1 +1,1 @@
-web: gunicorn whistle_server:'create_app()'
+web: gunicorn whistle_server:'make_app()'

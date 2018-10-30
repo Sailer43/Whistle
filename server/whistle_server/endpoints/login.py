@@ -22,7 +22,9 @@ class LoginEndpoint(Resource):
         if not verify_password(password, user.obj["password_hash"]):
             return abort(418)
         session["_session"] = str(user.obj['_id'])
-        response = jsonify({})
+        response = jsonify({
+                "user_id": str(user.obj["_id"])
+            })
         response.status_code = 201
         return response
 
